@@ -11,7 +11,7 @@ export interface ExtendedWeb3WindowInterface {
 
 declare const web3: Web3ExtendedProperties;
 
-const getWeb3 = () =>
+const getWeb3: () => Promise<ExtendedWeb3WindowInterface> = () =>
   new Promise((resolve) => {
     window.addEventListener("load", () => {
       let currentWeb3;
