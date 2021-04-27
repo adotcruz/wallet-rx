@@ -4,9 +4,13 @@ interface Web3ExtendedProperties {
   currentProvider: any;
 }
 
+interface EthExtendedProperties {
+  getAccounts: () => Promise<any[]>;
+}
 export interface ExtendedWeb3WindowInterface {
   ethereum: any;
   web3: Web3ExtendedProperties;
+  eth;
 }
 
 declare const web3: Web3ExtendedProperties;

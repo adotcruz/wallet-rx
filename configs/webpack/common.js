@@ -2,7 +2,11 @@
 const webpack = require("webpack");
 const { resolve } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+require("babel-core/register");
+require("babel-polyfill");
+
 module.exports = {
+  entry: ["babel-polyfill"],
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx"],
     fallback: {
@@ -13,6 +17,7 @@ module.exports = {
       stream: require.resolve("stream-browserify"),
       assert: require.resolve("assert/"),
       Buffer: require.resolve("Buffer"),
+      process: require.resolve("process"),
     },
   },
   context: resolve(__dirname, "../../src"),
@@ -44,6 +49,9 @@ module.exports = {
     new HtmlWebpackPlugin({ template: "index.html.ejs" }),
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],
+    }),
+    new webpack.ProvidePlugin({
+      process: "process/browser",
     }),
   ],
   externals: {
