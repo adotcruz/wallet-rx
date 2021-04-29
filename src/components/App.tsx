@@ -1,6 +1,9 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
+import { AaveClient } from "./Data/AaveClient";
+import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
+import { v2 } from "@aave/protocol-js";
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
@@ -37,6 +40,9 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   }
 
   public render() {
+    // TODO: fetch real ETH price
+    const ethPriceUsd = 2700;
+    this.fetchAave(this.mainAccount, ethPriceUsd);
     return (
       <div className="app">
         <h1>Hello World!</h1>
@@ -52,6 +58,31 @@ class App extends React.Component<Record<string, unknown>, AppState> {
         )}
       </div>
     );
+  }
+
+  private async fetchAave(address, ethPrice) {
+    console.log("fetching aave for account " + this.mainAccount);
+    let lowercaseAddress = address.toLowerCase();
+    const v2Reserves = await AaveClient.query({
+      query: V2_RESERVES,
+      fetchPolicy: "cache-first",
+    });
+    const v2UserReserves = await AaveClient.query({
+      query: V2_USER_RESERVES,
+      variables: {
+        id: lowercaseAddress,
+      },
+      fetchPolicy: "cache-first",
+    });
+    let usdPriceEth = (1 / ethPrice) * 1000000000000000000;
+    let v2UserSummary = v2.formatUserSummaryData(
+      v2Reserves.data.reserves,
+      v2UserReserves.data.userReserves,
+      lowercaseAddress,
+      usdPriceEth,
+      Math.floor(Date.now() / 1000)
+    );
+    console.log("v2 user summary: ", v2UserSummary);
   }
 }
 
