@@ -1,0 +1,19 @@
+div.user-wallet-info {
+  margin: 10%;
+}
+
+div.user-banner {
+  margin: 10%;
+}
+
+.underline--magical-thick {
+  background-image: linear-gradient(
+    120deg,
+    rgba(137, 228, 213, 0.568) 0%,
+    #6db2d1 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 0.2em;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease-in;
+}
