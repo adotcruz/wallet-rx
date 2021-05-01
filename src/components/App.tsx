@@ -37,6 +37,47 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     });
   }
 
+  private async fetchAave(address, ethPrice) {
+    let lowercaseAddress = address.toLowerCase();
+    const v2Reserves = await AaveClient.query({
+      query: V2_RESERVES,
+      fetchPolicy: "cache-first",
+    });
+    const v2UserReserves = await AaveClient.query({
+      query: V2_USER_RESERVES,
+      variables: {
+        id: lowercaseAddress,
+      },
+      fetchPolicy: "cache-first",
+    });
+    let usdPriceEth = (1 / ethPrice) * 1000000000000000000;
+    let v2UserSummary = v2.formatUserSummaryData(
+      v2Reserves.data.reserves,
+      v2UserReserves.data.userReserves,
+      lowercaseAddress,
+      usdPriceEth,
+      Math.floor(Date.now() / 1000)
+    );
+
+    let reserves = v2UserSummary.reservesData;
+    let userReservesArray = [];
+    reserves.forEach((reserve) => {
+      const underlying = reserve.underlyingBalance;
+      const underlyingUsd = reserve.underlyingBalanceUSD;
+      const name = reserve.reserve.name;
+      const summary = underlyingUsd + " USD and " + underlying + " " + name;
+
+      userReservesArray.push(summary);
+    });
+
+    console.log("v2 user summary array: ", userReservesArray);
+
+    this.setState({
+      userReserves: userReservesArray,
+    });
+    return v2UserSummary;
+  }
+
   componentDidMount() {
     this.setUpWeb3();
     // TODO: fetch real ETH price
@@ -79,47 +120,6 @@ class App extends React.Component<Record<string, unknown>, AppState> {
         </div>
       </div>
     );
-  }
-
-  private async fetchAave(address, ethPrice) {
-    let lowercaseAddress = address.toLowerCase();
-    const v2Reserves = await AaveClient.query({
-      query: V2_RESERVES,
-      fetchPolicy: "cache-first",
-    });
-    const v2UserReserves = await AaveClient.query({
-      query: V2_USER_RESERVES,
-      variables: {
-        id: lowercaseAddress,
-      },
-      fetchPolicy: "cache-first",
-    });
-    let usdPriceEth = (1 / ethPrice) * 1000000000000000000;
-    let v2UserSummary = v2.formatUserSummaryData(
-      v2Reserves.data.reserves,
-      v2UserReserves.data.userReserves,
-      lowercaseAddress,
-      usdPriceEth,
-      Math.floor(Date.now() / 1000)
-    );
-
-    let reserves = v2UserSummary.reservesData;
-    let userReservesArray = [];
-    reserves.forEach((reserve) => {
-      const underlying = reserve.underlyingBalance;
-      const underlyingUsd = reserve.underlyingBalanceUSD;
-      const name = reserve.reserve.name;
-      const summary = underlyingUsd + " USD and " + underlying + " " + name;
-
-      userReservesArray.push(summary);
-    });
-
-    console.log("v2 user summary array: ", userReservesArray);
-
-    this.setState({
-      userReserves: userReservesArray,
-    });
-    return v2UserSummary;
   }
 }
 
