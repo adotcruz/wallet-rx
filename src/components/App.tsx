@@ -28,15 +28,20 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     };
   }
 
-  private async setUpWeb3() {
+  private async getAccountInfo() {
     this.web3 = await getWeb3();
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
       isVerified: true,
     });
+
+    // TODO: fetch real ETH price
+    const ethPriceUsd = 2700;
+    this.fetchAave(this.mainAccount, ethPriceUsd);
   }
 
+  // TODO: move to other module like aave-utils
   private async fetchAave(address, ethPrice) {
     let lowercaseAddress = address.toLowerCase();
     const v2Reserves = await AaveClient.query({
@@ -79,16 +84,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   }
 
   componentDidMount() {
-    this.setUpWeb3();
-    // TODO: fetch real ETH price
-    const ethPriceUsd = 2700;
-    // TODO: only run after this.mainAccount is fetched - at this point it's null
-    this.fetchAave(
-      "0xC33D36523FBF8360792C2c372f5fE457BeeC001f",
-      ethPriceUsd
-    ).then((res) => {
-      console.log("RESULTS ", res);
-    });
+    this.getAccountInfo();
   }
 
   public render() {
