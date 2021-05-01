@@ -3,7 +3,7 @@ import { hot } from "react-hot-loader";
 import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
-import { v2 } from "@aave/protocol-js";
+import { v2, TxBuilderV2, Network, Market } from "@aave/protocol-js";
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
@@ -17,7 +17,6 @@ export interface AppState {
 
 class App extends React.Component<Record<string, unknown>, AppState> {
   private web3: ExtendedWeb3WindowInterface;
-
   private mainAccount?: Web3Account;
 
   constructor(props) {
@@ -30,6 +29,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
   private async getAccountInfo() {
     this.web3 = await getWeb3();
+
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
@@ -39,6 +39,25 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     // TODO: fetch real ETH price
     const ethPriceUsd = 2700;
     this.fetchAave(this.mainAccount, ethPriceUsd);
+
+    const httpProvider = this.web3.eth.providers["HttpProvider"];
+    console.log("current web3 provider: ", httpProvider);
+
+    const txBuilder = new TxBuilderV2(Network.mainnet, httpProvider);
+
+    console.log("txbuilder: ", txBuilder);
+
+    const lendingPool = txBuilder.getLendingPool(Market.Proto); // get all lending pool methods
+
+    console.log("lending pool: ", lendingPool);
+
+    //   lendingPool.deposit({
+    //     user, // string,
+    //     reserve, // string,
+    //     amount, // string,
+    //     onBehalfOf, // ? string,
+    //     referralCode, // ? string,
+    //  });
   }
 
   // TODO: move to other module like aave-utils
