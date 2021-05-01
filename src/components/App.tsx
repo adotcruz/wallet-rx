@@ -40,7 +40,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     return (
       <div className="app">
         <h1>Hello World!</h1>
-        <p>Foo to the barz nice</p>
+        <p>Foo to the bar nice</p>
         <img src={reactLogo.default} height="480" />
         {this.state.isVerified ? (
           <div>
