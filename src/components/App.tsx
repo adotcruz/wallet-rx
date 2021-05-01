@@ -1,6 +1,7 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
+import { initializeWallet } from "../web3/wallet";
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
@@ -24,12 +25,13 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   }
 
   private async setUpWeb3() {
-    this.web3 = await getWeb3();
-    this.mainAccount = (await this.web3.eth.getAccounts())[0];
-    console.log(this.mainAccount);
-    this.setState({
-      isVerified: true,
-    });
+    this.web3 = await initializeWallet();
+    // this.web3 = await getWeb3();
+    // this.mainAccount = (await this.web3.eth.getAccounts())[0];
+    // console.log(this.mainAccount);
+    // this.setState({
+    //   isVerified: true,
+    // });
   }
 
   componentDidMount() {
