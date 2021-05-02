@@ -4,6 +4,8 @@ import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { v2, TxBuilderV2, Network, Market } from "@aave/protocol-js";
+import { EthereumTransactionTypeExtended } from "@aave/protocol-js";
+import Web3 from "web3";
 
 const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
@@ -40,24 +42,31 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     const ethPriceUsd = 2700;
     this.fetchAave(this.mainAccount, ethPriceUsd);
 
-    const httpProvider = this.web3.eth.providers["HttpProvider"];
+    // TODO: confirm which provider -- alternative below
+    // const httpProvider = this.web3.eth.providers["HttpProvider"];
+
+    const httpProvider = new Web3.providers.HttpProvider(
+      "https://mainnet.infura.io/v3/a305eb1a2c9b42cdbcf61db762f8243e"
+    );
+
     console.log("current web3 provider: ", httpProvider);
 
-    const txBuilder = new TxBuilderV2(Network.mainnet, httpProvider);
+    let txBuilder;
+    let lendingPool;
 
+    txBuilder = new TxBuilderV2(Network.mainnet, httpProvider);
     console.log("txbuilder: ", txBuilder);
 
-    const lendingPool = txBuilder.getLendingPool(Market.Proto); // get all lending pool methods
-
+    lendingPool = txBuilder.getLendingPool(Market.Proto); // get all lending pool methods
     console.log("lending pool: ", lendingPool);
 
-    //   lendingPool.deposit({
-    //     user, // string,
-    //     reserve, // string,
-    //     amount, // string,
-    //     onBehalfOf, // ? string,
-    //     referralCode, // ? string,
-    //  });
+    let lendingResponse = await lendingPool.deposit({
+      user: "0xC33D36523FBF8360792C2c372f5fE457BeeC001f",
+      reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      amount: "10000",
+    });
+
+    console.log("response from lending: ", lendingResponse);
   }
 
   // TODO: move to other module like aave-utils
