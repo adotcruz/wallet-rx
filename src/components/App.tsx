@@ -4,8 +4,8 @@ import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { v2 } from "@aave/protocol-js";
+import { deposit } from "./Lend/AaveAction";
 
-const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
 
 export interface Web3Account {}
@@ -17,7 +17,6 @@ export interface AppState {
 
 class App extends React.Component<Record<string, unknown>, AppState> {
   private web3: ExtendedWeb3WindowInterface;
-
   private mainAccount?: Web3Account;
 
   constructor(props) {
@@ -30,6 +29,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
   private async getAccountInfo() {
     this.web3 = await getWeb3();
+
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
@@ -39,9 +39,13 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     // TODO: fetch real ETH price
     const ethPriceUsd = 2700;
     this.fetchAave(this.mainAccount, ethPriceUsd);
+
+    // deposit to Aave lending pool
+    let accounts = await this.web3.eth.getAccounts();
+    deposit(this.web3.eth.currentProvider, accounts[0]);
   }
 
-  // TODO: move to other module like aave-utils
+  // TODO: move to another module like aave-utils
   private async fetchAave(address, ethPrice) {
     let lowercaseAddress = address.toLowerCase();
     const v2Reserves = await AaveClient.query({
