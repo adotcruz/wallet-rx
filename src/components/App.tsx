@@ -31,7 +31,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       userReserves: [],
     };
 
-    // Need to bind to this since this function is called from the DOM.
+    // Need to bind to `this` since this function is called from the DOM, where this loses its scope.
     this.signUserIn = this.signUserIn.bind(this);
   }
 
@@ -96,6 +96,10 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     this.setState({ torus: await initializeTorusConnection() });
   }
 
+  // This is the last function with Torus set-up.
+  //
+  // This is called when a user clicks the button to sign-in through Torus and finishes up initialization
+  // of Web3.js by adding the Torus provider.
   private async signUserIn() {
     if (!this.state.torus) return;
     try {
