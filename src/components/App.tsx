@@ -41,8 +41,8 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     this.fetchAave(this.mainAccount, ethPriceUsd);
 
     // deposit to Aave lending pool
-    let user = await this.web3.eth.getAccounts();
-    deposit(this.web3.eth.currentProvider, user[0]);
+    let accounts = await this.web3.eth.getAccounts();
+    deposit(this.web3.eth.currentProvider, accounts[0]);
   }
 
   // TODO: move to another module like aave-utils
