@@ -1,6 +1,7 @@
 import { v2 } from "@aave/protocol-js";
 import Torus from "@toruslabs/torus-embed";
 import * as React from "react";
+import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
@@ -8,7 +9,7 @@ import { ExtendedWeb3WindowInterface } from "../web3/web3";
 import "./../assets/scss/App.scss";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
-import Button from "react-bootstrap/Button";
+import { deposit } from "./Lend/AaveAction";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 export interface Web3Account {}
@@ -21,7 +22,6 @@ export interface AppState {
 
 class App extends React.Component<Record<string, unknown>, AppState> {
   private web3: ExtendedWeb3WindowInterface;
-
   private mainAccount?: Web3Account;
 
   constructor(props) {
@@ -47,9 +47,13 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     // TODO: fetch real ETH price
     const ethPriceUsd = 2700;
     this.fetchAave(this.mainAccount, ethPriceUsd);
+
+    // deposit to Aave lending pool
+    let accounts = await this.web3.eth.getAccounts();
+    deposit(this.web3.eth.currentProvider, accounts[0]);
   }
 
-  // TODO: move to other module like aave-utils
+  // TODO: move to another module like aave-utils
   private async fetchAave(address, ethPrice) {
     let lowercaseAddress = address.toLowerCase();
     const v2Reserves = await AaveClient.query({
