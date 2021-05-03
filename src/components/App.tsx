@@ -1,17 +1,22 @@
+import { v2 } from "@aave/protocol-js";
+import Torus from "@toruslabs/torus-embed";
 import * as React from "react";
+import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
-import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
+import Web3 from "web3";
+import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
+import { ExtendedWeb3WindowInterface } from "../web3/web3";
+import "./../assets/scss/App.scss";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
-import { v2 } from "@aave/protocol-js";
 import { deposit } from "./Lend/AaveAction";
-
-import "./../assets/scss/App.scss";
+const reactLogo = require("./../assets/img/react_logo.svg");
 
 export interface Web3Account {}
 
 export interface AppState {
   isVerified: boolean;
+  torus?: Torus;
   userReserves: string[];
 }
 
@@ -25,11 +30,14 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       isVerified: false,
       userReserves: [],
     };
+
+    // Need to bind to `this` since this function is called from the DOM, where this loses its scope.
+    this.signUserIn = this.signUserIn.bind(this);
   }
 
   private async getAccountInfo() {
-    this.web3 = await getWeb3();
-
+    // Must pass in Torus provider in order for Web3 to not use MetaMask by default.
+    this.web3 = new Web3(this.state.torus.provider);
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
@@ -87,8 +95,30 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     return v2UserSummary;
   }
 
+  // This function creates the connection to the Torus wallet when the application loads up.
+  private async setUpTorus() {
+    this.setState({ torus: await initializeTorusConnection() });
+  }
+
+  // This is the last function with Torus set-up.
+  //
+  // This is called when a user clicks the button to sign-in through Torus and finishes up initialization
+  // of Web3.js by adding the Torus provider.
+  private async signUserIn() {
+    if (!this.state.torus) return;
+    try {
+      // If successfully logs in then user hash is returned.
+      await signUserIntoTorus(this.state.torus);
+      // Once user is logged in then we can finish web3 set-up.
+      await this.getAccountInfo();
+    } catch (e) {
+      //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
+      console.log("could not log user in successfully");
+    }
+  }
+
   componentDidMount() {
-    this.getAccountInfo();
+    this.setUpTorus();
   }
 
   public render() {
@@ -101,22 +131,28 @@ class App extends React.Component<Record<string, unknown>, AppState> {
           {this.state.isVerified ? (
             <div>
               <h4 className="font-weight-light">Hello, {this.mainAccount}</h4>
+              <div className="user-wallet-info shadow-lg p-3 mb-5 bg-white rounded">
+                <h3>
+                  Holdings in Aave (Polygon)
+                  <img
+                    src="https://pbs.twimg.com/profile_images/1186270065085370368/J1YJtvdI.jpg"
+                    height="30"
+                    className="rounded ml-2"
+                  />
+                </h3>
+                {this.state.userReserves}
+              </div>
             </div>
           ) : (
-            <h3>not verified :(</h3>
+            <div>
+              <h3>not verified :(</h3>
+              {this.state.torus ? (
+                <Button onClick={this.signUserIn}>Sign in!</Button>
+              ) : (
+                ""
+              )}
+            </div>
           )}
-        </div>
-
-        <div className="user-wallet-info shadow-lg p-3 mb-5 bg-white rounded">
-          <h3>
-            Holdings in Aave (Polygon)
-            <img
-              src="https://pbs.twimg.com/profile_images/1186270065085370368/J1YJtvdI.jpg"
-              height="30"
-              className="rounded ml-2"
-            />
-          </h3>
-          {this.state.userReserves}
         </div>
       </div>
     );

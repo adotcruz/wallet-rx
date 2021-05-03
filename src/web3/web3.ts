@@ -8,8 +8,8 @@ interface EthExtendedProperties {
   getAccounts: () => Promise<any[]>;
 }
 export interface ExtendedWeb3WindowInterface {
-  ethereum: any;
-  web3: Web3ExtendedProperties;
+  ethereum?: any;
+  web3?: Web3ExtendedProperties;
   eth;
 }
 
