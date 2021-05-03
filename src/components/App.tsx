@@ -3,11 +3,9 @@ import { hot } from "react-hot-loader";
 import getWeb3, { ExtendedWeb3WindowInterface } from "../web3/web3";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
-import { v2, TxBuilderV2, Network, Market } from "@aave/protocol-js";
-import { EthereumTransactionTypeExtended } from "@aave/protocol-js";
-import Web3 from "web3";
+import { v2 } from "@aave/protocol-js";
+import { deposit } from "./Lend/AaveAction";
 
-const reactLogo = require("./../assets/img/react_logo.svg");
 import "./../assets/scss/App.scss";
 
 export interface Web3Account {}
@@ -42,34 +40,12 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     const ethPriceUsd = 2700;
     this.fetchAave(this.mainAccount, ethPriceUsd);
 
-    // TODO: confirm which provider -- alternative below
-    // const httpProvider = this.web3.eth.providers["HttpProvider"];
-
-    const httpProvider = new Web3.providers.HttpProvider(
-      "https://mainnet.infura.io/v3/a305eb1a2c9b42cdbcf61db762f8243e"
-    );
-
-    console.log("current web3 provider: ", httpProvider);
-
-    let txBuilder;
-    let lendingPool;
-
-    txBuilder = new TxBuilderV2(Network.mainnet, httpProvider);
-    console.log("txbuilder: ", txBuilder);
-
-    lendingPool = txBuilder.getLendingPool(Market.Proto); // get all lending pool methods
-    console.log("lending pool: ", lendingPool);
-
-    let lendingResponse = await lendingPool.deposit({
-      user: "0xC33D36523FBF8360792C2c372f5fE457BeeC001f",
-      reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      amount: "10000",
-    });
-
-    console.log("response from lending: ", lendingResponse);
+    // deposit to Aave lending pool
+    let user = await this.web3.eth.getAccounts();
+    deposit(this.web3.eth.currentProvider, user[0]);
   }
 
-  // TODO: move to other module like aave-utils
+  // TODO: move to another module like aave-utils
   private async fetchAave(address, ethPrice) {
     let lowercaseAddress = address.toLowerCase();
     const v2Reserves = await AaveClient.query({
