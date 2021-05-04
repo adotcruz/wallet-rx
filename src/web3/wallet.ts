@@ -13,9 +13,9 @@ export const initializeTorusConnection: () => Promise<Torus> = async (): Promise
     buildEnv: "production", // default: production
     enableLogging: true, // default: false
     network: {
-      host: "mumbai", // default: mainnet
-      chainId: 80001, // default: 1
-      networkName: "Mumbai Test Network", // default: Main Ethereum Network
+      host: "matic", // default: mainnet
+      chainId: 137, // default: 1
+      networkName: "Matic Network", // default: Main Ethereum Network
     },
     showTorusButton: true, // default: true
   });
