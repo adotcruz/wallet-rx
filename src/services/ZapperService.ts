@@ -9,6 +9,9 @@ const ZapperEndpoint = "/zapper";
 const ZapperApiKey = "96e0cc51-a62e-42ca-acee-910ea7d2a241";
 
 export class ZapperService {
+  // This function gets the current Ethereum price on the specified `network`.
+  //
+  // Currently Voltaire only exists in Polygon, so we by default use the Polygon network.
   static async GetEthereumPrice(
     network: ZapperNetworks = ZapperNetworks.polygon
   ): Promise<number> {

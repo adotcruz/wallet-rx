@@ -125,6 +125,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     this.getEthereumPrice();
   }
 
+  // Calls the Zapper API and gets the current Ethereum price on Polygon/Matic.
   private async getEthereumPrice() {
     this.setState({
       currentEthPrice: await ZapperService.GetEthereumPrice(),
