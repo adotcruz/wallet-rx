@@ -47,9 +47,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       isVerified: true,
     });
 
-    // TODO: fetch real ETH price
-    const ethPriceUsd = 2700;
-    this.fetchAave(this.mainAccount, ethPriceUsd);
+    this.fetchAave(this.mainAccount, this.state.currentEthPrice);
 
     // deposit to Aave lending pool
     let accounts = await this.web3.eth.getAccounts();
