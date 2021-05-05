@@ -38,9 +38,12 @@ export class ZapperService {
     }
   }
 
-  // This function gets all the tokens in a user wallet.
-  //
+  //TODO(adotcruz): Implement function that gets all the tokens in a user wallet.
+
   //This function gets all the tokens a user has lended in aave, as well as each respective APY.
+  //
+  // By default Protocol is set to Aave, and Network is set to Polygon, but this can be made
+  // more generic as more support is added to different protocols/networks.
   static async GetUserAaveHoldings(
     address: string,
     protocol: ZapperSupportedProtocolWalletBalances = ZapperSupportedProtocolWalletBalances.Aave,

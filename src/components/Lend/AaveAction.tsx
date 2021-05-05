@@ -21,7 +21,7 @@ export const deposit = async (provider, accountAddress) => {
     // reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     // DAI reserve polygon
     reserve: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-    amount: "10",
+    amount: "1",
   });
 
   //   A Signer in ethers is an abstraction of an Ethereum Account, which can be used to sign messages and transactions

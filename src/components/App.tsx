@@ -4,24 +4,25 @@ import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
+import { ZapperAaveBalance } from "../models/Zapper";
+import { ZapperService } from "../services/ZapperService";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
 import { ExtendedWeb3WindowInterface } from "../web3/web3";
 import "./../assets/scss/App.scss";
+import { UserHoldingsComponent } from "./account/UserHoldings";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { deposit } from "./Lend/AaveAction";
-import { ZapperService } from "../services/ZapperService";
-import { ZapperAaveBalance } from "../models/Zapper";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
-export interface Web3Account {}
+export type Web3Account = string;
 
 export interface AppState {
   isVerified: boolean;
   userReserves: string[];
   aaveHoldings?: ZapperAaveBalance[];
   // Users wallet hash.
-  account?: string;
+  account?: Web3Account;
   currentEthPrice?: number;
   torus?: Torus;
 }
@@ -43,7 +44,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   }
 
   // Get a users aave specific holdings.
-  private async getAaveTokenBalances(address: string) {
+  private async getAaveTokenBalances(address: Web3Account) {
     this.setState({
       aaveHoldings: await ZapperService.GetUserAaveHoldings(address),
     });
@@ -172,10 +173,10 @@ class App extends React.Component<Record<string, unknown>, AppState> {
               <div>
                 {this.state.aaveHoldings ? (
                   <div>
-                    {this.state.aaveHoldings[0].label}:{" "}
-                    {this.state.aaveHoldings[0].balanceUSD} USD
-                    <br />
-                    {this.state.aaveHoldings[0].balance}
+                    <h3>Aave Holdings</h3>
+                    <UserHoldingsComponent
+                      aaveHoldings={this.state.aaveHoldings}
+                    ></UserHoldingsComponent>
                   </div>
                 ) : (
                   ""
