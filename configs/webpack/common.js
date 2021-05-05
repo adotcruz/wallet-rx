@@ -4,6 +4,7 @@ const { resolve } = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 require("babel-core/register");
 require("babel-polyfill");
+require("whatwg-fetch");
 
 module.exports = {
   entry: ["babel-polyfill"],

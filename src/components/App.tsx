@@ -10,14 +10,16 @@ import "./../assets/scss/App.scss";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { deposit } from "./Lend/AaveAction";
+import { ZapperService } from "../services/ZapperService";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 export interface Web3Account {}
 
 export interface AppState {
   isVerified: boolean;
-  torus?: Torus;
   userReserves: string[];
+  currentEthPrice?: number;
+  torus?: Torus;
 }
 
 class App extends React.Component<Record<string, unknown>, AppState> {
@@ -27,6 +29,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   constructor(props) {
     super(props);
     this.state = {
+      currentEthPrice: 0,
       isVerified: false,
       userReserves: [],
     };
@@ -44,9 +47,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       isVerified: true,
     });
 
-    // TODO: fetch real ETH price
-    const ethPriceUsd = 2700;
-    this.fetchAave(this.mainAccount, ethPriceUsd);
+    this.fetchAave(this.mainAccount, this.state.currentEthPrice);
 
     // deposit to Aave lending pool
     let accounts = await this.web3.eth.getAccounts();
@@ -119,6 +120,14 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
   componentDidMount() {
     this.setUpTorus();
+    this.getEthereumPrice();
+  }
+
+  // Calls the Zapper API and gets the current Ethereum price on Polygon/Matic.
+  private async getEthereumPrice() {
+    this.setState({
+      currentEthPrice: await ZapperService.GetEthereumPrice(),
+    });
   }
 
   public render() {
@@ -128,6 +137,11 @@ class App extends React.Component<Record<string, unknown>, AppState> {
           <h1 className="font-weight-lighter underline--magical-thick">
             Voltaire
           </h1>
+          {this.state.currentEthPrice != 0 ? (
+            <h4>Current Eth Price: {this.state.currentEthPrice}</h4>
+          ) : (
+            ""
+          )}
           {this.state.isVerified ? (
             <div>
               <h4 className="font-weight-light">Hello, {this.mainAccount}</h4>

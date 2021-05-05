@@ -13,6 +13,13 @@ module.exports = merge(commonConfig, {
   ],
   devServer: {
     hot: true, // enable HMR on the server
+    proxy: {
+      "/zapper": {
+        target: "https://api.zapper.fi",
+        pathRewrite: { "^/zapper": "" },
+        changeOrigin: true,
+      },
+    },
   },
   devtool: "cheap-module-source-map",
   plugins: [
