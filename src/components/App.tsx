@@ -11,6 +11,7 @@ import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { deposit } from "./Lend/AaveAction";
 import { ZapperService } from "../services/ZapperService";
+import { ZapperAaveBalance } from "../models/Zapper";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 export interface Web3Account {}
@@ -18,6 +19,9 @@ export interface Web3Account {}
 export interface AppState {
   isVerified: boolean;
   userReserves: string[];
+  aaveHoldings?: ZapperAaveBalance[];
+  // Users wallet hash.
+  account?: string;
   currentEthPrice?: number;
   torus?: Torus;
 }
@@ -38,12 +42,20 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     this.signUserIn = this.signUserIn.bind(this);
   }
 
+  // Get a users aave specific holdings.
+  private async getAaveTokenBalances(address: string) {
+    this.setState({
+      aaveHoldings: await ZapperService.GetUserAaveHoldings(address),
+    });
+  }
+
   private async getAccountInfo() {
     // Must pass in Torus provider in order for Web3 to not use MetaMask by default.
     this.web3 = new Web3(this.state.torus.provider);
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
+      account: this.mainAccount,
       isVerified: true,
     });
 
@@ -112,6 +124,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       await signUserIntoTorus(this.state.torus);
       // Once user is logged in then we can finish web3 set-up.
       await this.getAccountInfo();
+      await this.getAaveTokenBalances(this.state.account);
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
@@ -155,6 +168,18 @@ class App extends React.Component<Record<string, unknown>, AppState> {
                   />
                 </h3>
                 {this.state.userReserves}
+              </div>
+              <div>
+                {this.state.aaveHoldings ? (
+                  <div>
+                    {this.state.aaveHoldings[0].label}:{" "}
+                    {this.state.aaveHoldings[0].balanceUSD} USD
+                    <br />
+                    {this.state.aaveHoldings[0].balance}
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           ) : (
