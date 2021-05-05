@@ -5,7 +5,7 @@ export const deposit = async (provider, accountAddress) => {
   const customProvider = new ethers.providers.Web3Provider(provider);
   console.log("CUSTOM PROVIDER: ", customProvider);
 
-  const txBuilder = new TxBuilderV2(Network.mainnet, customProvider);
+  const txBuilder = new TxBuilderV2(Network.polygon, customProvider);
   console.log("txbuilder: ", txBuilder);
 
   const lendingPool = txBuilder.getLendingPool(Market.Proto); // get all lending pool methods
@@ -18,7 +18,9 @@ export const deposit = async (provider, accountAddress) => {
   const lendingResponse = await lendingPool.deposit({
     user: accountAddress,
     // USDC reserve
-    reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    // reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    // DAI reserve polygon
+    reserve: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
     amount: "10",
   });
 
