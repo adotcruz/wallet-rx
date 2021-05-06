@@ -9,7 +9,7 @@ enum TokenReserves {
   DaiMainnet = "0x6b175474e89094c44da98b954eedeac495271d0f",
 }
 
-export const deposit = async (provider, accountAddress) => {
+export const deposit = async (provider, accountAddress, amount = "1") => {
   const customProvider = new ethers.providers.Web3Provider(provider);
   console.log("CUSTOM PROVIDER: ", customProvider);
 
@@ -25,8 +25,7 @@ export const deposit = async (provider, accountAddress) => {
   const lendingResponse = await lendingPool.deposit({
     user: accountAddress,
     reserve: TokenReserves.UsdcPolygon,
-    // TODO: update to take actual input for reserve and amount (remove hard-coding)
-    amount: "1",
+    amount: amount,
   });
 
   //   A Signer in ethers is an abstraction of an Ethereum Account, which can be used to sign messages and transactions
@@ -47,4 +46,5 @@ export const deposit = async (provider, accountAddress) => {
     results.push(tx);
   }
   console.log("ALL RESULTS: ", results);
+  //   TODO: refresh wallet info after lending, to show latest deposits in aave
 };
