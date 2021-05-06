@@ -1,6 +1,14 @@
 import { TxBuilderV2, Network, Market } from "@aave/protocol-js";
 import { ethers } from "ethers";
 
+// https://docs.aave.com/developers/deployed-contracts/matic-polygon-market
+enum TokenReserves {
+  UsdcPolygon = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+  UsdcMainnet = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  DaiPolygon = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+  DaiMainnet = "0x6b175474e89094c44da98b954eedeac495271d0f",
+}
+
 export const deposit = async (provider, accountAddress) => {
   const customProvider = new ethers.providers.Web3Provider(provider);
   console.log("CUSTOM PROVIDER: ", customProvider);
@@ -14,14 +22,11 @@ export const deposit = async (provider, accountAddress) => {
   console.log("triggering lending pool deposit for user ", accountAddress);
   // The lendingResponse a Promise array of ethereum transactions, which are executed with sendTransaction()
   // https://github.com/aave/aave-js/tree/8c4131acef1a908d69a328a6925a1caf65df7375#lending-pool-v2
-  // TODO: update to take actual input for reserve and amount (remove hard-coding)
   const lendingResponse = await lendingPool.deposit({
     user: accountAddress,
-    // USDC reserve
-    // reserve: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    // DAI reserve polygon
-    reserve: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
-    amount: "10",
+    reserve: TokenReserves.UsdcPolygon,
+    // TODO: update to take actual input for reserve and amount (remove hard-coding)
+    amount: "1",
   });
 
   //   A Signer in ethers is an abstraction of an Ethereum Account, which can be used to sign messages and transactions
