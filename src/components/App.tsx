@@ -4,20 +4,25 @@ import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
+import { ZapperAaveBalance } from "../models/Zapper";
+import { ZapperService } from "../services/ZapperService";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
 import { ExtendedWeb3WindowInterface } from "../web3/web3";
 import "./../assets/scss/App.scss";
+import { UserHoldingsComponent } from "./account/UserHoldings";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
 import { deposit } from "./Lend/AaveAction";
-import { ZapperService } from "../services/ZapperService";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
-export interface Web3Account {}
+export type Web3Account = string;
 
 export interface AppState {
   isVerified: boolean;
   userReserves: string[];
+  aaveHoldings?: ZapperAaveBalance[];
+  // Users wallet hash.
+  account?: Web3Account;
   currentEthPrice?: number;
   torus?: Torus;
 }
@@ -38,12 +43,20 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     this.signUserIn = this.signUserIn.bind(this);
   }
 
+  // Get a users aave specific holdings.
+  private async getAaveTokenBalances(address: Web3Account) {
+    this.setState({
+      aaveHoldings: await ZapperService.GetUserAaveHoldings(address),
+    });
+  }
+
   private async getAccountInfo() {
     // Must pass in Torus provider in order for Web3 to not use MetaMask by default.
     this.web3 = new Web3(this.state.torus.provider);
     this.mainAccount = (await this.web3.eth.getAccounts())[0];
     console.log("MAIN ACCOUNT: ", this.mainAccount);
     this.setState({
+      account: this.mainAccount,
       isVerified: true,
     });
 
@@ -112,6 +125,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       await signUserIntoTorus(this.state.torus);
       // Once user is logged in then we can finish web3 set-up.
       await this.getAccountInfo();
+      await this.getAaveTokenBalances(this.state.account);
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
@@ -155,6 +169,18 @@ class App extends React.Component<Record<string, unknown>, AppState> {
                   />
                 </h3>
                 {this.state.userReserves}
+              </div>
+              <div>
+                {this.state.aaveHoldings ? (
+                  <div>
+                    <h3>Aave Holdings</h3>
+                    <UserHoldingsComponent
+                      aaveHoldings={this.state.aaveHoldings}
+                    ></UserHoldingsComponent>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           ) : (
