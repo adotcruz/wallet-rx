@@ -8,7 +8,7 @@ export enum TokenReserves {
 // Matic specific token symbols to differentiate tokens.
 export enum MaticTokenSymbols {
   Dai = "DAI",
-  eth = "ETH",
+  Eth = "ETH",
   Matic = "MATIC",
   UsdC = "USDC",
 }
