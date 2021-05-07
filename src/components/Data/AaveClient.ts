@@ -16,7 +16,6 @@ export const AaveClient = new ApolloClient({
   // Pass the configuration option { uri: YOUR_GRAPHQL_API_URL } to the `HttpLink` to connect
   // to a different host
   link: new HttpLink({
-    // pending uniswap with 'fixed' trade volumne
     uri: "https://api.thegraph.com/subgraphs/name/aave/aave-v2-matic",
   }),
   cache: new InMemoryCache(),
