@@ -2,10 +2,10 @@ import { ComputedUserReserve, v2 } from "@aave/protocol-js";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
+import { MaticTokenSymbols } from "../../models/Tokens";
 import {
   ZapperAaveBalance,
   ZapperAaveTokenCategory,
-  ZapperCoinSymbols,
   ZapperSupportedProtocols,
 } from "../../models/Zapper";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Query";
@@ -20,16 +20,14 @@ export const AaveClient = new ApolloClient({
   }),
   cache: new InMemoryCache(),
 });
-// NOTE: The FormatAaveReserve function formats the data returned from the 
-// aave SDK into a Zapper object, even though the response itself is not technically 
-// from Zapper. We can change this in the future by renaming the ZapperAaveBalance 
+// NOTE: The FormatAaveReserve function formats the data returned from the
+// aave SDK into a Zapper object, even though the response itself is not technically
+// from Zapper. We can change this in the future by renaming the ZapperAaveBalance
 // object to something generic like AaveBalance
 export class AaveService {
-  static FormatAaveReserve(
-    reserve: ComputedUserReserve
-  ): ZapperAaveBalance {
+  static FormatAaveReserve(reserve: ComputedUserReserve): ZapperAaveBalance {
     return {
-      symbol: reserve.reserve.symbol as ZapperCoinSymbols,
+      symbol: reserve.reserve.symbol as MaticTokenSymbols,
       label: reserve.reserve.name,
       protocol: ZapperSupportedProtocols.Aave,
       protocolDisplay: "",

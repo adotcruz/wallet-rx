@@ -3,6 +3,7 @@ import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
+import { TokenReservesSymbols } from "../models/Tokens";
 import { GenericTokenBalance, ZapperAaveBalance } from "../models/Zapper";
 import { ZapperService } from "../services/ZapperService";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
@@ -11,12 +12,14 @@ import "./../assets/scss/App.scss";
 import { UserHoldingsComponent } from "./account/UserHoldings";
 import { AaveService } from "./Data/AaveClient";
 import { DepositComponent } from "./deposit/Deposit";
-import { deposit } from "./Lend/AaveAction";
+import { deposit, TokenReserves } from "./Lend/AaveAction";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 export type Web3Account = string;
 
 export interface AppState {
+  coinToDepositAddress: TokenReserves;
+  coinToDepositSymbol: TokenReservesSymbols;
   isVerified: boolean;
   userReserves: string[];
   aaveHoldings?: ZapperAaveBalance[];
@@ -34,6 +37,8 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   constructor(props) {
     super(props);
     this.state = {
+      coinToDepositAddress: TokenReserves.UsdcPolygon,
+      coinToDepositSymbol: TokenReservesSymbols.UsdcPolygon,
       currentEthPrice: 0,
       isVerified: false,
       userReserves: [],
@@ -74,6 +79,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     await deposit(
       this.web3.eth.currentProvider,
       this.state.account,
+      this.state.coinToDepositAddress,
       `${amount}`
     );
     await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -95,12 +101,12 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   private async tryToSignUserInAutomatically() {
     console.log("auto user sign-in", this.state.torus);
     if (this.state.torus.currentVerifier != "") {
-      await this.setUpSignedInUser();
+      await this.loadUserInfo();
     }
   }
 
   // Once user is logged in then we can finish web3 set-up.
-  private async setUpSignedInUser() {
+  private async loadUserInfo() {
     await this.getAccountInfo();
     await this.getAaveTokenBalances(this.state.account);
     await this.getWalletTokenBalances(this.state.account);
@@ -115,7 +121,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     try {
       // If successfully logs in then user hash is returned.
       await signUserIntoTorus(this.state.torus);
-      await this.setUpSignedInUser();
+      await this.loadUserInfo();
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
@@ -185,7 +191,9 @@ class App extends React.Component<Record<string, unknown>, AppState> {
               </div>
 
               <div className="depositDiv shadow-lg p-3 rounded mt-2 mb-5">
-                <h3>💲 Deposit to earn yield</h3>
+                <h3>
+                  💲 Deposit {this.state.coinToDepositSymbol} to earn yield
+                </h3>
                 {this.state.walletHoldings ? (
                   <DepositComponent
                     onDeposit={this.depositUserAmount}

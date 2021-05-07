@@ -2,15 +2,13 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import FormControl from "react-bootstrap/FormControl";
 import InputGroup from "react-bootstrap/InputGroup";
-import {
-  SharedTokenBalanceProperties,
-  ZapperCoinSymbols,
-} from "../../models/Zapper";
+import { MaticTokenSymbols } from "../../models/Tokens";
+import { SharedTokenBalanceProperties } from "../../models/Zapper";
 
 declare interface DepositProps {
   onDeposit: (amount: number) => void;
   walletBalance: SharedTokenBalanceProperties[];
-  tokenToDeposit?: ZapperCoinSymbols;
+  tokenToDeposit?: MaticTokenSymbols;
 }
 
 // This component is in charge of figuring out how much of a token a user should deposit.
@@ -21,7 +19,7 @@ declare interface DepositProps {
 export const DepositComponent = ({
   onDeposit,
   walletBalance,
-  tokenToDeposit = ZapperCoinSymbols.Dai,
+  tokenToDeposit = MaticTokenSymbols.Dai,
 }: DepositProps) => {
   // Float value of `userTypeDeposit` that is sent to Aave.
   const [depositAmount, setDepositAmount] = useState(0.0);
