@@ -18,10 +18,6 @@ div.user-banner {
   transition: background-size 0.25s ease-in;
 }
 
-#torusIframe {
-  display: none !important;
-}
-
 .depositDiv {
   margin-top: 3%;
 }

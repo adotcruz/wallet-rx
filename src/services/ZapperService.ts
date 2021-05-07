@@ -1,9 +1,9 @@
+import { MaticTokenSymbols } from "../models/Tokens";
 import {
   GenericTokenBalance,
   ZapperAaveBalance,
   ZapperAddressBalanceResponse,
   ZapperCoinPrice,
-  ZapperCoinSymbols,
   ZapperNetworks,
   ZapperProtocolBalanceProductLabel,
   ZapperSupportedProtocolWalletBalances,
@@ -27,7 +27,7 @@ export class ZapperService {
       )) as ZapperCoinPrice[];
       console.log("coin prices fetched from zapper");
       for (const coinPrice of coinPrices) {
-        if (coinPrice.symbol == ZapperCoinSymbols.eth) {
+        if (coinPrice.symbol == MaticTokenSymbols.eth) {
           console.log("ethereum price was found");
           return coinPrice.price;
         }

@@ -1,6 +1,8 @@
+import { MaticTokenSymbols } from "./Tokens";
+
 // Zapper supported networks.
 //
-// We currently only care about Ethereum/Polygon (Matic).
+// We currently only care about Ethereum/Polygon(Matic).
 export enum ZapperNetworks {
   ethereum = "ethereum",
   polygon = "polygon",
@@ -12,13 +14,6 @@ export enum ZapperSupportedProtocolWalletBalances {
 
 export enum ZapperSupportedProtocols {
   Aave = "aave",
-}
-
-// Zapper specific coin symbols to differentiate coins.
-export enum ZapperCoinSymbols {
-  Dai = "DAI",
-  eth = "ETH",
-  Matic = "MATIC",
 }
 
 // Response of `/price` endpoint.
@@ -42,7 +37,7 @@ export interface SharedTokenBalanceProperties {
   type: string;
   category: ZapperAaveTokenCategory;
   address: string;
-  symbol: ZapperCoinSymbols;
+  symbol: MaticTokenSymbols;
   decimals: number;
   label: string;
   img: string;

@@ -1,24 +1,25 @@
-import { v2 } from "@aave/protocol-js";
 import Torus from "@toruslabs/torus-embed";
 import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
+import { TokenReservesSymbols } from "../models/Tokens";
 import { GenericTokenBalance, ZapperAaveBalance } from "../models/Zapper";
 import { ZapperService } from "../services/ZapperService";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
 import { ExtendedWeb3WindowInterface } from "../web3/web3";
 import "./../assets/scss/App.scss";
 import { UserHoldingsComponent } from "./account/UserHoldings";
-import { AaveClient } from "./Data/AaveClient";
-import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
+import { AaveService } from "./Data/AaveClient";
 import { DepositComponent } from "./deposit/Deposit";
-import { deposit } from "./Lend/AaveAction";
+import { deposit, TokenReserves } from "./Lend/AaveAction";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
 export type Web3Account = string;
 
 export interface AppState {
+  coinToDepositAddress: TokenReserves;
+  coinToDepositSymbol: TokenReservesSymbols;
   isVerified: boolean;
   userReserves: string[];
   aaveHoldings?: ZapperAaveBalance[];
@@ -36,6 +37,8 @@ class App extends React.Component<Record<string, unknown>, AppState> {
   constructor(props) {
     super(props);
     this.state = {
+      coinToDepositAddress: TokenReserves.UsdcPolygon,
+      coinToDepositSymbol: TokenReservesSymbols.UsdcPolygon,
       currentEthPrice: 0,
       isVerified: false,
       userReserves: [],
@@ -69,60 +72,44 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       account: this.mainAccount,
       isVerified: true,
     });
-
-    this.fetchAave(this.mainAccount, this.state.currentEthPrice);
   }
 
-  // Function to deposit to Aave lending pool.
-  depositUserAmount(amount: number) {
-    deposit(this.web3.eth.currentProvider, this.state.account, `${amount}`);
-  }
-
-  // TODO: move to another module like aave-utils
-  private async fetchAave(address, ethPrice) {
-    let lowercaseAddress = address.toLowerCase();
-    const v2Reserves = await AaveClient.query({
-      query: V2_RESERVES,
-      fetchPolicy: "cache-first",
-    });
-    const v2UserReserves = await AaveClient.query({
-      query: V2_USER_RESERVES,
-      variables: {
-        id: lowercaseAddress,
-      },
-      fetchPolicy: "cache-first",
-    });
-    let usdPriceEth = (1 / ethPrice) * 1000000000000000000;
-    let v2UserSummary = v2.formatUserSummaryData(
-      v2Reserves.data.reserves,
-      v2UserReserves.data.userReserves,
-      lowercaseAddress,
-      usdPriceEth,
-      Math.floor(Date.now() / 1000)
+  // Function to deposit to Aave lending pools
+  async depositUserAmount(amount: number) {
+    await deposit(
+      this.web3.eth.currentProvider,
+      this.state.account,
+      this.state.coinToDepositAddress,
+      `${amount}`
     );
-
-    let reserves = v2UserSummary.reservesData;
-    let userReservesArray = [];
-    reserves.forEach((reserve) => {
-      const underlying = reserve.underlyingBalance;
-      const underlyingUsd = reserve.underlyingBalanceUSD;
-      const name = reserve.reserve.name;
-      const summary = underlyingUsd + " USD and " + underlying + " " + name;
-
-      userReservesArray.push(summary);
-    });
-
-    console.log("v2 user summary array: ", userReservesArray);
-
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     this.setState({
-      userReserves: userReservesArray,
+      aaveHoldings: await AaveService.GetAaveUserHoldings(
+        this.state.account,
+        this.state.currentEthPrice
+      ),
     });
-    return v2UserSummary;
   }
 
   // This function creates the connection to the Torus wallet when the application loads up.
   private async setUpTorus() {
     this.setState({ torus: await initializeTorusConnection() });
+    // Try to sign user in if Torus already verified user.
+    await this.tryToSignUserInAutomatically();
+  }
+
+  private async tryToSignUserInAutomatically() {
+    console.log("auto user sign-in", this.state.torus);
+    if (this.state.torus.currentVerifier != "") {
+      await this.loadUserInfo();
+    }
+  }
+
+  // Once user is logged in then we can finish web3 set-up.
+  private async loadUserInfo() {
+    await this.getAccountInfo();
+    await this.getAaveTokenBalances(this.state.account);
+    await this.getWalletTokenBalances(this.state.account);
   }
 
   // This is the last function with Torus set-up.
@@ -134,10 +121,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     try {
       // If successfully logs in then user hash is returned.
       await signUserIntoTorus(this.state.torus);
-      // Once user is logged in then we can finish web3 set-up.
-      await this.getAccountInfo();
-      this.getAaveTokenBalances(this.state.account);
-      this.getWalletTokenBalances(this.state.account);
+      await this.loadUserInfo();
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
@@ -207,7 +191,9 @@ class App extends React.Component<Record<string, unknown>, AppState> {
               </div>
 
               <div className="depositDiv shadow-lg p-3 rounded mt-2 mb-5">
-                <h3>💲 Deposit to earn yield</h3>
+                <h3>
+                  💲 Deposit {this.state.coinToDepositSymbol} to earn yield
+                </h3>
                 {this.state.walletHoldings ? (
                   <DepositComponent
                     onDeposit={this.depositUserAmount}
