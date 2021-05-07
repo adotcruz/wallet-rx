@@ -18,6 +18,7 @@ export enum ZapperSupportedProtocols {
 export enum ZapperCoinSymbols {
   Dai = "DAI",
   eth = "ETH",
+  Matic = "MATIC",
 }
 
 // Response of `/price` endpoint.
@@ -37,7 +38,7 @@ export enum ZapperAaveTokenType {
   EarnsInterest = "interest-bearing",
 }
 
-export interface ZapperAaveBalance {
+export interface SharedTokenBalanceProperties {
   type: string;
   category: ZapperAaveTokenCategory;
   address: string;
@@ -45,9 +46,6 @@ export interface ZapperAaveBalance {
   decimals: number;
   label: string;
   img: string;
-  protocol: ZapperSupportedProtocols;
-  protocolDisplay: string;
-  protocolSymbol: string;
   price: number;
   apy: number;
   // Raw balance value.
@@ -58,6 +56,13 @@ export interface ZapperAaveBalance {
   balanceUSD: number;
 }
 
+export declare type GenericTokenBalance = SharedTokenBalanceProperties;
+export interface ZapperAaveBalance extends SharedTokenBalanceProperties {
+  protocol: ZapperSupportedProtocols;
+  protocolDisplay: string;
+  protocolSymbol: string;
+}
+
 export enum ZapperAaveBalanceMetadataLabels {
   Total = "Total",
   Assets = "Assets",
@@ -66,7 +71,7 @@ export enum ZapperAaveBalanceMetadataLabels {
   Health = "Health Factor",
 }
 
-export interface ZapperAaveBalanceMetadata {
+export interface ZapperAddressBalanceMetadata {
   label: ZapperAaveBalanceMetadataLabels;
   value: number;
   type: string;
@@ -74,19 +79,20 @@ export interface ZapperAaveBalanceMetadata {
 
 export enum ZapperProtocolBalanceProductLabel {
   AaveV2 = "Aave V2",
+  Tokens = "Tokens",
 }
-export interface ZapperAaveProductInfo {
+export interface ZapperAddressProductInfo {
   label: ZapperProtocolBalanceProductLabel;
-  assets: ZapperAaveBalance[];
+  assets: ZapperAaveBalance[] | GenericTokenBalance[];
   // Only ontains `Health Factor`.
-  meta: ZapperAaveBalanceMetadata;
+  meta: ZapperAddressBalanceMetadata;
 }
 
 // Response of /aave-v2 balance for a user.
-export interface ZapperAaveBalanceResponse {
+export interface ZapperAddressBalanceResponse {
   [address: string]: {
-    products: ZapperAaveProductInfo[];
+    products: ZapperAddressProductInfo[];
     // Contains Total and Assets values for Aave holdings.
-    meta: ZapperAaveBalanceMetadata[];
+    meta: ZapperAddressBalanceMetadata[];
   };
 }

@@ -1,6 +1,6 @@
-import { ZapperAaveBalance } from "../../models/Zapper";
+import { SharedTokenBalanceProperties } from "../../models/Zapper";
 declare interface UserHoldingsProps {
-  aaveHoldings: ZapperAaveBalance[];
+  balances: SharedTokenBalanceProperties[];
 }
 
 // This component is in charge of showing a users AaveHoldings.
@@ -9,9 +9,9 @@ declare interface UserHoldingsProps {
 // https://reactjs.org/docs/components-and-props.html#function-and-class-components
 // It currently shows a tokens label, apy, balance (in USD), balance. It shows
 // all tokens present in aave.
-export const UserHoldingsComponent = ({ aaveHoldings }: UserHoldingsProps) => (
+export const UserHoldingsComponent = ({ balances }: UserHoldingsProps) => (
   <div>
-    {aaveHoldings.map((token, index) => (
+    {balances.map((token, index) => (
       <div key={index}>
         <h4>{token.label}</h4>
         <h5> Current APY: {token.apy}</h5>

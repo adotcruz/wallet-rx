@@ -4,7 +4,7 @@ import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { hot } from "react-hot-loader";
 import Web3 from "web3";
-import { ZapperAaveBalance } from "../models/Zapper";
+import { GenericTokenBalance, ZapperAaveBalance } from "../models/Zapper";
 import { ZapperService } from "../services/ZapperService";
 import { initializeTorusConnection, signUserIntoTorus } from "../web3/wallet";
 import { ExtendedWeb3WindowInterface } from "../web3/web3";
@@ -12,6 +12,7 @@ import "./../assets/scss/App.scss";
 import { UserHoldingsComponent } from "./account/UserHoldings";
 import { AaveClient } from "./Data/AaveClient";
 import { V2_RESERVES, V2_USER_RESERVES } from "./Data/Query.js";
+import { DepositComponent } from "./deposit/Deposit";
 import { deposit } from "./Lend/AaveAction";
 const reactLogo = require("./../assets/img/react_logo.svg");
 
@@ -25,6 +26,7 @@ export interface AppState {
   account?: Web3Account;
   currentEthPrice?: number;
   torus?: Torus;
+  walletHoldings?: GenericTokenBalance[];
 }
 
 class App extends React.Component<Record<string, unknown>, AppState> {
@@ -41,12 +43,20 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
     // Need to bind to `this` since this function is called from the DOM, where this loses its scope.
     this.signUserIn = this.signUserIn.bind(this);
+    this.depositUserAmount = this.depositUserAmount.bind(this);
   }
 
   // Get a users aave specific holdings.
   private async getAaveTokenBalances(address: Web3Account) {
     this.setState({
       aaveHoldings: await ZapperService.GetUserAaveHoldings(address),
+    });
+  }
+
+  // Get a user tokens in their wallet.
+  private async getWalletTokenBalances(address: Web3Account) {
+    this.setState({
+      walletHoldings: await ZapperService.GetUserTokens(address),
     });
   }
 
@@ -61,10 +71,11 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     });
 
     this.fetchAave(this.mainAccount, this.state.currentEthPrice);
+  }
 
-    // deposit to Aave lending pool
-    let accounts = await this.web3.eth.getAccounts();
-    deposit(this.web3.eth.currentProvider, accounts[0]);
+  // Function to deposit to Aave lending pool.
+  depositUserAmount(amount: number) {
+    deposit(this.web3.eth.currentProvider, this.state.account, `${amount}`);
   }
 
   // TODO: move to another module like aave-utils
@@ -125,7 +136,8 @@ class App extends React.Component<Record<string, unknown>, AppState> {
       await signUserIntoTorus(this.state.torus);
       // Once user is logged in then we can finish web3 set-up.
       await this.getAccountInfo();
-      await this.getAaveTokenBalances(this.state.account);
+      this.getAaveTokenBalances(this.state.account);
+      this.getWalletTokenBalances(this.state.account);
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
@@ -171,11 +183,31 @@ class App extends React.Component<Record<string, unknown>, AppState> {
                 {this.state.userReserves}
               </div>
               <div>
+                {this.state.walletHoldings ? (
+                  <DepositComponent
+                    onDeposit={this.depositUserAmount}
+                    walletBalance={this.state.walletHoldings}
+                  ></DepositComponent>
+                ) : (
+                  ""
+                )}
+              </div>
+              <div>
                 {this.state.aaveHoldings ? (
                   <div>
                     <h3>Aave Holdings</h3>
                     <UserHoldingsComponent
-                      aaveHoldings={this.state.aaveHoldings}
+                      balances={this.state.aaveHoldings}
+                    ></UserHoldingsComponent>
+                  </div>
+                ) : (
+                  ""
+                )}
+                {this.state.walletHoldings ? (
+                  <div>
+                    <h3>Wallet Holdings</h3>
+                    <UserHoldingsComponent
+                      balances={this.state.walletHoldings}
                     ></UserHoldingsComponent>
                   </div>
                 ) : (
