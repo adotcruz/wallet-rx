@@ -24,7 +24,7 @@ export const deposit = async (provider, accountAddress, amount = "1") => {
   // https://github.com/aave/aave-js/tree/8c4131acef1a908d69a328a6925a1caf65df7375#lending-pool-v2
   const lendingResponse = await lendingPool.deposit({
     user: accountAddress,
-    reserve: TokenReserves.DaiPolygon,
+    reserve: TokenReserves.UsdcPolygon,
     amount: amount,
   });
 
