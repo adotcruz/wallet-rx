@@ -122,7 +122,19 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
   // This function creates the connection to the Torus wallet when the application loads up.
   private async setUpTorus() {
-    this.setState({ torus: await initializeTorusConnection() });
+    const torus = await initializeTorusConnection();
+    this.setState({ torus: torus });
+    console.log("verifier:", torus.currentVerifier);
+    if (torus.currentVerifier) {
+      await this.setUpSignedInUser();
+    }
+  }
+
+  // Once user is logged in then we can finish web3 set-up.
+  private async setUpSignedInUser() {
+    await this.getAccountInfo();
+    this.getAaveTokenBalances(this.state.account);
+    this.getWalletTokenBalances(this.state.account);
   }
 
   // This is the last function with Torus set-up.
@@ -134,10 +146,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     try {
       // If successfully logs in then user hash is returned.
       await signUserIntoTorus(this.state.torus);
-      // Once user is logged in then we can finish web3 set-up.
-      await this.getAccountInfo();
-      this.getAaveTokenBalances(this.state.account);
-      this.getWalletTokenBalances(this.state.account);
+      await this.setUpSignedInUser();
     } catch (e) {
       //TODO(adotcruz): Handle the case where the user can't log-in cleanly.
       console.log("could not log user in successfully");
