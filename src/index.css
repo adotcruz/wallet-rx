@@ -1,5 +1,5 @@
 div.user-wallet-info {
-  margin: 10%;
+  margin: 1%;
 }
 
 div.user-banner {
@@ -16,4 +16,12 @@ div.user-banner {
   background-size: 100% 0.2em;
   background-position: 0 88%;
   transition: background-size 0.25s ease-in;
+}
+
+#torusIframe {
+  display: none !important;
+}
+
+.depositDiv {
+  margin-top: 3%;
 }

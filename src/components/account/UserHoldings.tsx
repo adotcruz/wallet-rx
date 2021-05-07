@@ -9,14 +9,35 @@ declare interface UserHoldingsProps {
 // https://reactjs.org/docs/components-and-props.html#function-and-class-components
 // It currently shows a tokens label, apy, balance (in USD), balance. It shows
 // all tokens present in aave.
+
+enum tokenIcons {
+  "DAI" = "https://research.binance.com/static/images/projects/dai/logo.png",
+  "MATIC" = "https://icodrops.com/wp-content/uploads/2018/06/yT_5Hap9_400x400.png",
+  "USDC" = "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
+}
+
 export const UserHoldingsComponent = ({ balances }: UserHoldingsProps) => (
   <div>
     {balances.map((token, index) => (
       <div key={index}>
-        <h4>{token.label}</h4>
-        <h5> Current APY: {token.apy}</h5>
-        <div>Balance in USD: {token.balanceUSD}</div>
-        <div>Balance: {token.balance}</div>
+        <h5 className="font-weight-lighter">
+          {" "}
+          <img src={tokenIcons[token.symbol]} alt="" width="15px" />{" "}
+          {token.label}
+        </h5>
+        <div>
+          {token.balance.toFixed(4)} (${token.balanceUSD.toFixed(4)} USD)
+        </div>
+        <div>
+          {token.apy ? (
+            <p>
+              {" "}
+              Earning <b>{(token.apy * 100).toFixed(2)}%</b> APY
+            </p>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     ))}
   </div>
