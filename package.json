@@ -86,7 +86,7 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "@aave/protocol-js": "^2.7.2",
+    "@aave/protocol-js": "^2.7.3-534a837cf852d48d8fbe23f92968a91efc524d20.0",
     "@apollo/react-hooks": "^4.0.0",
     "@toruslabs/torus-embed": "^1.10.9",
     "apollo-boost": "^0.4.9",
