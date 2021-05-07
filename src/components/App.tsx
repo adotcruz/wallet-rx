@@ -69,7 +69,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     });
   }
 
-  // Function to deposit to Aave lending pool.s
+  // Function to deposit to Aave lending pools
   async depositUserAmount(amount: number) {
     await deposit(
       this.web3.eth.currentProvider,
