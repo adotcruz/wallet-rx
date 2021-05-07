@@ -25,7 +25,7 @@ export const AaveClient = new ApolloClient({
 // from Zapper. We can change this in the future by renaming the ZapperAaveBalance 
 // object to something generic like AaveBalance
 export class AaveService {
-  static AaveReserveToZapperBalance(
+  static FormatAaveReserve(
     reserve: ComputedUserReserve
   ): ZapperAaveBalance {
     return {
