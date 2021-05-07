@@ -74,7 +74,7 @@ export class AaveService {
 
     let reserves = v2UserSummary.reservesData;
     let aaveTokenBalances = reserves.map((reserve: ComputedUserReserve) =>
-      this.AaveReserveToZapperBalance(reserve)
+      this.FormatAaveReserve(reserve)
     );
 
     console.log("v2 user summary array: ", reserves);
