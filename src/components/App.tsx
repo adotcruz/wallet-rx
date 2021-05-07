@@ -163,39 +163,40 @@ class App extends React.Component<Record<string, unknown>, AppState> {
           <h1 className="font-weight-lighter underline--magical-thick">
             Voltaire
           </h1>
-          {this.state.currentEthPrice != 0 ? (
+          {/* {this.state.currentEthPrice != 0 ? (
             <h4>Current Eth Price: {this.state.currentEthPrice}</h4>
           ) : (
             ""
-          )}
+          )} */}
           {this.state.isVerified ? (
             <div>
-              <h4 className="font-weight-light">Hello, {this.mainAccount}</h4>
-              <div className="user-wallet-info shadow-lg p-3 mb-5 bg-white rounded">
-                <h3>
-                  Holdings in Aave (Polygon)
-                  <img
-                    src="https://pbs.twimg.com/profile_images/1186270065085370368/J1YJtvdI.jpg"
-                    height="30"
-                    className="rounded ml-2"
-                  />
-                </h3>
-                {this.state.userReserves}
-              </div>
-              <div>
+              <h4 className="font-weight-light">
+                👋 Hello, {this.mainAccount}
+              </h4>
+              <div className="user-wallet-info shadow-lg p-3 mt-5 mb-5 bg-white rounded">
                 {this.state.walletHoldings ? (
-                  <DepositComponent
-                    onDeposit={this.depositUserAmount}
-                    walletBalance={this.state.walletHoldings}
-                  ></DepositComponent>
+                  <div>
+                    <h3>💰 Wallet Holdings</h3>
+                    <UserHoldingsComponent
+                      balances={this.state.walletHoldings}
+                    ></UserHoldingsComponent>
+                  </div>
                 ) : (
                   ""
                 )}
               </div>
-              <div>
+
+              <div className="p-3">
                 {this.state.aaveHoldings ? (
                   <div>
-                    <h3>Aave Holdings</h3>
+                    <h3>
+                      📈 Deposited funds (Aave Polygon)
+                      <img
+                        src="https://pbs.twimg.com/profile_images/1186270065085370368/J1YJtvdI.jpg"
+                        height="30"
+                        className="rounded ml-2"
+                      />
+                    </h3>
                     <UserHoldingsComponent
                       balances={this.state.aaveHoldings}
                     ></UserHoldingsComponent>
@@ -203,13 +204,15 @@ class App extends React.Component<Record<string, unknown>, AppState> {
                 ) : (
                   ""
                 )}
+              </div>
+
+              <div className="depositDiv shadow-lg p-3 rounded mt-2 mb-5">
+                <h3>💲 Deposit to earn yield</h3>
                 {this.state.walletHoldings ? (
-                  <div>
-                    <h3>Wallet Holdings</h3>
-                    <UserHoldingsComponent
-                      balances={this.state.walletHoldings}
-                    ></UserHoldingsComponent>
-                  </div>
+                  <DepositComponent
+                    onDeposit={this.depositUserAmount}
+                    walletBalance={this.state.walletHoldings}
+                  ></DepositComponent>
                 ) : (
                   ""
                 )}
