@@ -8,6 +8,7 @@ import {
 } from "../../models/Zapper";
 
 declare interface DepositProps {
+  onDeposit: (amount: number) => void;
   walletBalance: SharedTokenBalanceProperties[];
   tokenToDeposit?: ZapperCoinSymbols;
 }
@@ -18,6 +19,7 @@ declare interface DepositProps {
 // https://reactjs.org/docs/components-and-props.html#function-and-class-components
 // It currently allows a user to pick a number, or to deposit max holidings of specified coin.
 export const DepositComponent = ({
+  onDeposit,
   walletBalance,
   tokenToDeposit = ZapperCoinSymbols.Dai,
 }: DepositProps) => {
@@ -34,7 +36,9 @@ export const DepositComponent = ({
     const desiredToken = walletBalance
       .map((token) => token)
       .filter((token) => token.symbol == tokenToDeposit)[0];
-    setMaxAmountToDeposit(desiredToken.balance);
+    if (desiredToken) {
+      setMaxAmountToDeposit(desiredToken.balance);
+    }
   }, []);
   // Callback/event handlers for various DOM events.
   const updateAmountToDeposit = async (
@@ -53,10 +57,12 @@ export const DepositComponent = ({
   };
   const sendDeposit = () => {
     console.log(depositAmount);
+    onDeposit(depositAmount);
   };
   const setDepositValueAsMax = () => {
     setuserTypedDeposit(`${maxAmountToDeposit}`);
     setDepositAmount(maxAmountToDeposit);
+    setIsValidNumber(true);
   };
 
   return (

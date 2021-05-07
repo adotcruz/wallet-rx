@@ -43,6 +43,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
 
     // Need to bind to `this` since this function is called from the DOM, where this loses its scope.
     this.signUserIn = this.signUserIn.bind(this);
+    this.depositUserAmount = this.depositUserAmount.bind(this);
   }
 
   // Get a users aave specific holdings.
@@ -70,10 +71,11 @@ class App extends React.Component<Record<string, unknown>, AppState> {
     });
 
     this.fetchAave(this.mainAccount, this.state.currentEthPrice);
+  }
 
-    // deposit to Aave lending pool
-    let accounts = await this.web3.eth.getAccounts();
-    // deposit(this.web3.eth.currentProvider, accounts[0]);
+  // Function to deposit to Aave lending pool.
+  depositUserAmount(amount: number) {
+    deposit(this.web3.eth.currentProvider, this.state.account, `${amount}`);
   }
 
   // TODO: move to another module like aave-utils
@@ -183,6 +185,7 @@ class App extends React.Component<Record<string, unknown>, AppState> {
               <div>
                 {this.state.walletHoldings ? (
                   <DepositComponent
+                    onDeposit={this.depositUserAmount}
                     walletBalance={this.state.walletHoldings}
                   ></DepositComponent>
                 ) : (
