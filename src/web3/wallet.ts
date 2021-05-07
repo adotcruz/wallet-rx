@@ -7,7 +7,6 @@ import Web3 from "web3";
 // as other block chain information
 export const initializeTorusConnection: () => Promise<Torus> = async (): Promise<Torus> => {
   const torus = new Torus({
-    // buttonPosition: "top-left", // default: bottom-left
   });
   await torus.init({
     buildEnv: "production", // default: production

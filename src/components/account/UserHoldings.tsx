@@ -21,7 +21,6 @@ export const UserHoldingsComponent = ({ balances }: UserHoldingsProps) => (
     {balances.map((token, index) => (
       <div key={index}>
         <h5 className="font-weight-lighter">
-          {" "}
           <img src={tokenIcons[token.symbol]} alt="" width="15px" />{" "}
           {token.label}
         </h5>
@@ -31,7 +30,6 @@ export const UserHoldingsComponent = ({ balances }: UserHoldingsProps) => (
         <div>
           {token.apy ? (
             <p>
-              {" "}
               Earning <b>{(token.apy * 100).toFixed(2)}%</b> APY
             </p>
           ) : (
