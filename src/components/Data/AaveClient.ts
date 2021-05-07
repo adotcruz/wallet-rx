@@ -20,7 +20,10 @@ export const AaveClient = new ApolloClient({
   }),
   cache: new InMemoryCache(),
 });
-
+// NOTE: The FormatAaveReserve function formats the data returned from the 
+// aave SDK into a Zapper object, even though the response itself is not technically 
+// from Zapper. We can change this in the future by renaming the ZapperAaveBalance 
+// object to something generic like AaveBalance
 export class AaveService {
   static AaveReserveToZapperBalance(
     reserve: ComputedUserReserve
